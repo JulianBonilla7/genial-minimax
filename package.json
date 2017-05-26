@@ -1,0 +1,16 @@
+{
+  "name": "genial-minimax",
+  "version": "1.0.0",
+  "description": "Ingenious tile game implementation as a web app, including AI using minimax algorithm",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4",
+    "react-hexgrid": "^1.0.0"
+  }
+}
