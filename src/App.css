@@ -37,3 +37,34 @@ p {
   right: 1em;
   width: 49%;
 }
+
+.red .hexagon{
+  fill: Red;
+}
+.blue .hexagon{
+  fill: Blue;
+}
+.green .hexagon{
+  fill: Green;
+}
+.orange .hexagon{
+  fill: Orange;
+}
+.yellow .hexagon{
+  fill: Yellow;
+}
+.purple .hexagon{
+  fill: Purple;
+}
+.fixed{
+  fill-opacity: 1;
+}
+.possible{
+  fill-opacity: 0.4;
+}
+
+svg .tile g polygon {
+  stroke: #7be3f6;
+  stroke-width: 0.2;
+  transition: fill-opacity .5s;
+}

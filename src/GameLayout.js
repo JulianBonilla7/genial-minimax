@@ -5,12 +5,38 @@ import './GameLayout.css';
 class GameLayout extends Component {
   constructor(props) {
     super(props);
-    const hexagons = GridGenerator.hexagon(5);
+    const radius = 5;
+    const hexagons = GridGenerator.hexagon(radius);
     // Add custom prop to couple of hexagons to indicate them being blocked
-    hexagons[0].blocked = true;
-    hexagons[1].blocked = true;
-    hexagons[5].blocked = true;
-    hexagons[23].blocked = true;
+
+    const printCoordinates = function (h) {
+      let { q, r, s } = h;
+      if (JSON.stringify([q, r, s])===JSON.stringify([-5, 0, 5])){
+        h.blocked = true;
+        h.color = 'purple';
+      }
+      if (JSON.stringify([q, r, s])===JSON.stringify([-5, 5, 0])){
+        h.blocked = true;
+        h.color = 'yellow';
+      }
+      if (JSON.stringify([q, r, s])===JSON.stringify([0, 5, -5])){
+        h.blocked = true;
+        h.color = 'orange';
+      }
+      if (JSON.stringify([q, r, s])===JSON.stringify([5, 0, -5])){
+        h.blocked = true;
+        h.color = 'blue';
+      }
+      if (JSON.stringify([q, r, s])===JSON.stringify([5, -5, 0])){
+        h.blocked = true;
+        h.color = 'green';
+      }
+      if (JSON.stringify([q, r, s])===JSON.stringify([0, -5, 5])){
+        h.blocked = true;
+        h.color = 'red';
+      }
+    }
+    hexagons.map(printCoordinates)
     this.state = { hexagons };
   }
 
@@ -82,7 +108,7 @@ class GameLayout extends Component {
               q={hex.q}
               r={hex.r}
               s={hex.s}
-              className={hex.blocked ? 'blocked' : null}
+              className={hex.blocked ? ( hex.color ? hex.color : 'blocked' ) : null}
               fill={(hex.image) ? HexUtils.getID(hex) : null}
               data={hex}
               onDragStart={(e, h) => this.onDragStart(e, h)}
