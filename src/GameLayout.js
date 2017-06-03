@@ -1,61 +1,108 @@
 import React, { Component } from 'react';
-import { GridGenerator, Layout, Hexagon, Text, Pattern, HexUtils } from 'react-hexgrid';
+import { GridGenerator, Layout, Hexagon, Text, HexUtils } from 'react-hexgrid';
+import classNames from 'classnames';
 import './GameLayout.css';
+import Utils from './Utils';
 
 class GameLayout extends Component {
   constructor(props) {
     super(props);
-    const radius = 5;
+    const radius = 3;
     const hexagons = GridGenerator.hexagon(radius);
     // Add custom prop to couple of hexagons to indicate them being blocked
 
     const printCoordinates = function (h) {
       let { q, r, s } = h;
-      if (JSON.stringify([q, r, s])===JSON.stringify([-5, 0, 5])){
+      if (JSON.stringify([q, r, s])===JSON.stringify([-radius, 0, radius])){
         h.blocked = true;
         h.color = 'purple';
       }
-      if (JSON.stringify([q, r, s])===JSON.stringify([-5, 5, 0])){
+      if (JSON.stringify([q, r, s])===JSON.stringify([-radius, radius, 0])){
         h.blocked = true;
         h.color = 'yellow';
       }
-      if (JSON.stringify([q, r, s])===JSON.stringify([0, 5, -5])){
+      if (JSON.stringify([q, r, s])===JSON.stringify([0, radius, -radius])){
         h.blocked = true;
         h.color = 'orange';
       }
-      if (JSON.stringify([q, r, s])===JSON.stringify([5, 0, -5])){
+      if (JSON.stringify([q, r, s])===JSON.stringify([radius, 0, -radius])){
         h.blocked = true;
         h.color = 'blue';
       }
-      if (JSON.stringify([q, r, s])===JSON.stringify([5, -5, 0])){
+      if (JSON.stringify([q, r, s])===JSON.stringify([radius, -radius, 0])){
         h.blocked = true;
         h.color = 'green';
       }
-      if (JSON.stringify([q, r, s])===JSON.stringify([0, -5, 5])){
+      if (JSON.stringify([q, r, s])===JSON.stringify([0, -radius, radius])){
         h.blocked = true;
         h.color = 'red';
       }
     }
-    hexagons.map(printCoordinates)
-    this.state = { hexagons };
+    hexagons.map(printCoordinates);
+
+    this.state = { 
+      hexagons,
+      move: { color: null, points: null }
+    };
   }
 
   // onDrop you can read information of the hexagon that initiated the drag
   onDrop(event, source, targetProps) {
-    const { hexagons } = this.state;
-    const hexas = hexagons.map(hex => {
+    const { move, hexagons } = this.state;
+    let neighbours = [];
+    let first = false;
+    let moveResult = {};
+    let hexas = hexagons.map(hex => {
       // When hexagon is dropped on this hexagon, copy it's image and text
       if (HexUtils.equals(source.state.hex, hex)) {
-        hex.image = targetProps.data.image;
-        hex.text = targetProps.data.text;
+        // console.log(targetProps);
+        hex.color = targetProps.data.color;
+        first = targetProps.data.first;
+        let color = hex.color;
+
+        // Calcular puntos buscando en las casillas vecinas y sobre los ejes
+        const coloredHexas = hexagons.filter(h => {
+          if (HexUtils.distance(hex, h) < 2 || 
+              hex.q === h.q || 
+              hex.r === h.r || 
+              hex.s === h.s
+          ){
+            if (h.color === color) {
+              return true;
+            }
+          }
+        });
+
+        moveResult = {
+          color: color,
+          points: coloredHexas.length - 1
+        }
+        console.log(moveResult);
       }
       return hex;
     });
-    this.setState({ hexagons: hexas });
+    // console.log(neighbours);
+    
+    if (first) {        
+      // Bloquear todas las casillas menos las siguientes a la primera ficha puesta
+      const blocked = Utils.array_difference(hexas, neighbours);
+      for(let b of blocked){
+        b.blocked = true;
+      }
+    }
+    else{               
+      // Desbloquear tablero luego de terminar el movimiento
+      hexas = hexagons.map(hex => {
+        hex.blocked = false;
+        return hex;
+      });
+    }
+
+    this.setState({ hexagons: hexas, move: moveResult });
   }
 
   onDragStart(event, source) {
-    // If this tile is empty, let's disallow drag
+    // Deshabilitar arrastre si la casilla no tiene contenido
     if (!source.props.data.text) {
       event.preventDefault();
     }
@@ -70,9 +117,9 @@ class GameLayout extends Component {
       return HexUtils.equals(source.state.hex, blockedHex);
     });
 
-    const { text } = source.props.data;
+    const { text, color } = source.props.data;
     // Allow drop, if not blocked and there's no content already
-    if (!blocked && !text) {
+    if (!blocked && !text && !color) {
       // Call preventDefault if you want to allow drop
       event.preventDefault();
     }
@@ -89,8 +136,7 @@ class GameLayout extends Component {
     // When hexagon is successfully dropped, empty it's text and image
     const hexas = hexagons.map(hex => {
       if (HexUtils.equals(source.state.hex, hex)) {
-        hex.text = null;
-        hex.image = null;
+        hex.color = null;
       }
       return hex;
     });
@@ -108,7 +154,8 @@ class GameLayout extends Component {
               q={hex.q}
               r={hex.r}
               s={hex.s}
-              className={hex.blocked ? ( hex.color ? hex.color : 'blocked' ) : null}
+              //className={hex.blocked ? ( hex.color ? hex.color : 'blocked' ) : null}
+              className={classNames({'blocked': hex.blocked}, hex.color)}
               fill={(hex.image) ? HexUtils.getID(hex) : null}
               data={hex}
               onDragStart={(e, h) => this.onDragStart(e, h)}
@@ -117,7 +164,6 @@ class GameLayout extends Component {
               onDragOver={(e, h) => this.onDragOver(e, h) }
             >
               <Text>{hex.text || HexUtils.getID(hex)}</Text>
-              { hex.image && <Pattern id={HexUtils.getID(hex)} link={hex.image} /> }
             </Hexagon>
           ))
         }

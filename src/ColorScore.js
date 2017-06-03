@@ -1,0 +1,15 @@
+import React from 'react';
+
+const ColorScore = (props) => {
+  const color = props.color;
+  const score = props.score;
+  
+  return (
+    <tr>
+      <td className={color}>{color}:</td>
+      <td>{score}</td>
+    </tr>
+  )
+}
+
+export default ColorScore;

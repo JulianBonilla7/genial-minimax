@@ -39,22 +39,22 @@ p {
 }
 
 .red .hexagon{
-  fill: Red;
+  fill: Red !important;
 }
 .blue .hexagon{
-  fill: Blue;
+  fill: Blue !important;
 }
 .green .hexagon{
-  fill: Green;
+  fill: Green !important;
 }
 .orange .hexagon{
-  fill: Orange;
+  fill: Orange !important;
 }
 .yellow .hexagon{
-  fill: Yellow;
+  fill: Yellow !important;
 }
 .purple .hexagon{
-  fill: Purple;
+  fill: Purple !important;
 }
 .fixed{
   fill-opacity: 1;

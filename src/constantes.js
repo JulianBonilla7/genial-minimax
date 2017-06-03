@@ -3,8 +3,6 @@ class constantes{
 	  'red', 'blue', 'green',
 	  'orange', 'purple', 'yellow'
 	];
-
-
 }
 
 export default constantes;
