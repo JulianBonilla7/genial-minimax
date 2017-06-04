@@ -19,7 +19,10 @@ class App extends Component {
   }
 
   onDrop(event, source, move){
-    console.log(move);
+    const { playerScore } = this.state;
+    playerScore.update(move.color, move.points);
+
+    this.setState( playerScore: playerScore);
   }
 
   updateScore(color, points) {
@@ -42,7 +45,7 @@ class App extends Component {
   }
 
   render() {
-    const { bolsa } = this.state;
+    const { playerScore, bolsa } = this.state;
     const numeroFichas = 6;
     const fichasJugador = this.asignarFichas(numeroFichas);
     return (
@@ -52,7 +55,7 @@ class App extends Component {
           <GameLayout onDrop={this.onDrop} />
           <TileList fichas={fichasJugador}/>
         </HexGrid>
-        <Scoreboard/>
+        <Scoreboard score={playerScore}/>
       </div>
     );
   }

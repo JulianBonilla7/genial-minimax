@@ -2,7 +2,7 @@ import React from 'react';
 
 const ColorScore = (props) => {
   const color = props.color;
-  const score = props.score;
+  const score = props.score || 0;
   
   return (
     <tr>

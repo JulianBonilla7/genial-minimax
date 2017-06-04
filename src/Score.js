@@ -9,7 +9,7 @@ class Score {
     this.green = 0;
   }
 
-  aumentarPuntaje(color, puntaje){
+  update(color, puntaje){
     this[color] += puntaje;
   }
 }

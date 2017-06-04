@@ -1,29 +1,34 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import ColorScore from './ColorScore';
 
 class Scoreboard extends Component{
 
   constructor(props) {
     super(props);
-    const scores = [
-      {color:'red', value: 0},
-      {color:'yellow', value: 0},
-      {color:'purple', value: 0},
-      {color:'blue', value: 0},
-      {color:'orange', value: 0},
-      {color:'green', value: 0}
-    ]
-    this.state = { scores }
   }
 
+  static propTypes = {
+    score: PropTypes.object.isRequired,
+  };
+
+
+
   render() {
-    const { scores } = this.state;
+    const { score } = this.props;
+    const colores = []
+    for (let prop in score) {
+      if(prop != 'player'){
+        colores.push({ color: prop, score: score[prop] });
+      }
+    }
+    console.log(colores);
     return(
       <table className="stats">
         <tbody>
         {
-          scores.map(c => (
-            <ColorScore color={c.color} score={c.value}/>
+          colores.map((c, i) => (
+            <ColorScore key={i} color={c.color} score={c.score}/>
           ))
         }
         </tbody>
