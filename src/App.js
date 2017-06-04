@@ -11,10 +11,15 @@ import './App.css';
 class App extends Component {
   constructor(props){
     super(props);
-    const playerScore = new Score('player', 0, 0, 0, 0, 0, 0);
+    const playerScore = new Score('player');
     const bolsa = BolsaFichas.crearFichas();
     this.state = { playerScore, bolsa };
 
+    this.onDrop = this.onDrop.bind(this);
+  }
+
+  onDrop(event, source, move){
+    console.log(move);
   }
 
   updateScore(color, points) {
@@ -44,8 +49,7 @@ class App extends Component {
       <div className="app">
         <h2>Genial!</h2>
         <HexGrid width={1200} height={800} viewBox="-50 -50 100 100">
-          <GameLayout onDrag />
-          {/*<TilesLayout />*/}
+          <GameLayout onDrop={this.onDrop} />
           <TileList fichas={fichasJugador}/>
         </HexGrid>
         <Scoreboard/>

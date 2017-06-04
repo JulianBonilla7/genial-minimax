@@ -78,7 +78,10 @@ class GameLayout extends Component {
           color: color,
           points: coloredHexas.length - 1
         }
-        console.log(moveResult);
+        this.props.onDrop(event, source, moveResult);
+
+        // console.log(moveResult);
+
       }
       return hex;
     });
