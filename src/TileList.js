@@ -3,15 +3,47 @@ import PropTypes from 'prop-types';
 import HexTile from './HexTile';
 
 class TileList extends Component {
+  constructor(props){
+    super(props);
+
+    this.onDragStart = this.onDragStart.bind(this);
+    this.onDragEnd = this.onDragEnd.bind(this);
+
+    this.state = { isTileMoving: false };
+  }
+
   static propTypes = {
-    children: PropTypes.node.isRequired,
+    fichas: PropTypes.array.isRequired,
   };
 
+  onDragStart(event, source) {
+    this.setState({ isTileMoving: true })
+    console.log('Moving');
+  }
+
+  onDragEnd(event, source, success) {
+    if (!success) {
+      return;
+    }
+    this.setState({ isTileMoving: false })
+    console.log('finished');
+  }
+
   render() {
-    const { children } = this.props;
+    const { fichas } = this.props;
     return (
       <g>
-        {children}
+        {
+          fichas.map((ficha, i) => (
+            <HexTile key={i} 
+                     x={15} 
+                     y={7*i} 
+                     ficha={ficha}
+                     onDragStart={this.onDragStart}
+                     onDragEnd={this.onDragEnd}
+            />
+          ))
+        }
       </g>
     );
   }

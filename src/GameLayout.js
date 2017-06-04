@@ -7,7 +7,7 @@ import Utils from './Utils';
 class GameLayout extends Component {
   constructor(props) {
     super(props);
-    const radius = 3;
+    const radius = 5;
     const hexagons = GridGenerator.hexagon(radius);
     // Add custom prop to couple of hexagons to indicate them being blocked
 
@@ -61,6 +61,7 @@ class GameLayout extends Component {
         let color = hex.color;
 
         // Calcular puntos buscando en las casillas vecinas y sobre los ejes
+        neighbours = hexagons.filter(h => HexUtils.distance(hex, h) < 2);
         const coloredHexas = hexagons.filter(h => {
           if (HexUtils.distance(hex, h) < 2 || 
               hex.q === h.q || 

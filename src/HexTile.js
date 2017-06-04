@@ -8,23 +8,14 @@ class HexTile extends Component{
 	  super(props);
 	  let { color1, color2 } = props.ficha;
 	  let ficha = [color1, color2];
-	  // console.log('Ficha creada');
-	  // console.log(ficha);
-	  // let l = console.log;
-	  // Initialize hexagons with some text and image
+
+	  // Initialize hexagons with some color
 	  const hexagons = GridGenerator.orientedRectangle(2, 1).map((hexagon, index) => {
-	  //   return Object.assign({}, hexagon, {
-	  //     text: `Cat #${index}`,
-	  //     image: `http://lorempixel.com/400/400/cats/${index%10}/`
-	  //   }, ficha);
-	  // });
-		  let obj = Object.assign({}, hexagon, {
-		  	// text: `Ficha #${index}`,
+	    return Object.assign({}, hexagon, {
 	      color: ficha[index]
 	    });
-	    // l(obj);
-	    return obj;
 	  });
+
 	  this.state = { hexagons };
 	}
 
@@ -42,6 +33,7 @@ class HexTile extends Component{
 
 	onDragStart(event, source) {
     // Could do something on onDragStart as well, if you wish
+    this.props.onDragStart(event, source);
     const { hexagons } = this.state;
     // Get the other hex
     const neighbours = HexUtils.neighbours(source.state.hex);
@@ -62,11 +54,12 @@ class HexTile extends Component{
     })
 
     this.setState({ hexagons: hexas });
-		console.log(source);
+		// console.log(source);
   }
 
   // onDragEnd you can do some logic, e.g. to clean up hexagon if drop was success
   onDragEnd(event, source, success) {
+    this.props.onDragEnd(event, source, success);
     if (!success) {
       return;
     }
