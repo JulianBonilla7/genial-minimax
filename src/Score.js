@@ -1,12 +1,16 @@
 class Score {
-  constructor(player, red, yellow, purple, blue, orange, green) {
+  constructor(player) {
     this.player = player;
-    this.red = red;
-    this.yellow = yellow;
-    this.purple = purple;
-    this.blue = blue;
-    this.orange = orange;
-    this.green = green;
+    this.red = 0;
+    this.yellow = 0;
+    this.purple = 0;
+    this.blue = 0;
+    this.orange = 0;
+    this.green = 0;
+  }
+
+  aumentarPuntaje(color, puntaje){
+    this[color] += puntaje;
   }
 }
 
