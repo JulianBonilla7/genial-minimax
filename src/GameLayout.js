@@ -54,6 +54,7 @@ class GameLayout extends Component {
   static propTypes = {
     turnoJugador: PropTypes.bool.isRequired,
     pcMove: PropTypes.func.isRequired,
+    fichas: PropTypes.array
   };
 
   // onDrop you can read information of the hexagon that initiated the drag
@@ -176,6 +177,7 @@ class GameLayout extends Component {
 
     // console.log('You made a move!');
     const { move, hexagons, turno } = this.state;
+    const { fichas } = this.props;
     if (turno) {
       return;
     }
@@ -205,16 +207,15 @@ class GameLayout extends Component {
       // console.log(blocked);
       // console.log(secondBlocked);
 
-      const movimiento = Utils.movimientoAleatorio(hexagons);
-      const colors = constantes.COLORES;
+      const movimiento = Utils.movimientoAleatorio(hexagons, fichas);
       console.log(movimiento);
       // Poner fichas en el tablero
       let PCMove = {}
       const hexas = hexagons.map(hex => {
         for (let pieza in movimiento) {
           if(HexUtils.equals(movimiento[pieza], hex)){
-            console.log(movimiento[pieza]);
-            hex.color = colors[Utils.random(colors.length)];
+            // console.log(movimiento[pieza]);
+            hex.color = movimiento[pieza].color;
             PCMove = {
               color: hex.color,
               points: Utils.evaluarPuntaje(hexagons, hex)

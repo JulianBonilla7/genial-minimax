@@ -55,13 +55,22 @@ class Utils{
     return mejores[Utils.random(mejores.length)];
   }
 
-  static movimientoAleatorio(tablero){
+  static movimientoAleatorio(tablero, fichas){
+    console.log('Fichas PC:');
+    console.log(fichas);
+    const fichaElegida = fichas[Utils.random(fichas.length)];
+    console.log('Ficha elegida:');
+    console.log(fichaElegida);
     // Seleccionar posibles movimientos
     const libres = tablero.filter(hex => !hex.color);
     // Generar movimiento de primera pieza aleatorio
-    const elegida = libres[Utils.random(libres.length)]
-    const pieza1 = tablero.find(hex => {
-      return HexUtils.equals(elegida, hex);
+    const casillaElegida = libres[Utils.random(libres.length)];
+    let pieza1 = tablero.find(hex => {
+      return HexUtils.equals(casillaElegida, hex);
+    });
+    pieza1 = Object.assign({}, pieza1, {
+      color: fichaElegida.color1,
+      ficha: fichaElegida.key
     });
     // Encontrar posibles casillas para segunda pieza de ficha
     const siguientes = Utils.array_intersect(
@@ -69,7 +78,11 @@ class Utils{
       // Casillas vecinas excluyendo las que ya tengan color
       tablero.filter(h => HexUtils.distance(pieza1, h) == 1 && !h.color)
     );
-    const pieza2 = siguientes[Utils.random(siguientes.length)];
+    let pieza2 = siguientes[Utils.random(siguientes.length)];
+    pieza2 = Object.assign({}, pieza2, {
+      color: fichaElegida.color2,
+      ficha: fichaElegida.key
+    });
 
     return { pieza1, pieza2 };
   }

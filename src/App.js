@@ -20,25 +20,40 @@ class App extends Component {
     const PCScore = new Score('PC');
     const bolsa = BolsaFichas.crearFichas();
     const turnoJugador = true;
+    const numeroFichas = 6;
+    const fichasJugador = App.asignarFichas(bolsa, numeroFichas);
+    const fichasPC = App.asignarFichas(bolsa, numeroFichas);
+
     this.state = { 
       playerScore, 
       PCScore, 
       bolsa,
-      turnoJugador 
+      turnoJugador,
+      fichasJugador,
+      fichasPC
     };
 
     this.onDrop = this.onDrop.bind(this);
   }
 
   onDragStart(event, source, playerMoving) {
-    // console.log(`Jugador empezó movimiento. Moviendo? ${playerMoving}`);
+    console.log(`Jugador empezó movimiento. Moviendo? ${playerMoving}`);
     this.setState({ turnoJugador: playerMoving })
     // this.setState({ isTileMoving: true })
   }
 
   onDragEnd(event, source, moving) {
-    // console.log(`Jugador terminó movimiento. Moviendo? ${moving}`);
+    const { bolsa, fichasJugador } = this.state;
+    console.log(`Jugador terminó movimiento. Moviendo? ${moving}`);
     this.setState({ turnoJugador: moving });
+    if (!moving) {
+      const fichaMovida = source.props.data.ficha;
+      console.log(fichaMovida);
+      const fichaNueva = BolsaFichas.agregarFicha(bolsa);
+      console.log(fichaNueva);
+      fichasJugador.splice(fichasJugador.findIndex(f => f.key == source.props.data.ficha), 1);
+      fichasJugador.push(fichaNueva);
+    }
     // this.setState({ isTileMoving: false })
   }
 
@@ -52,14 +67,14 @@ class App extends Component {
 
   pcMove(move){
     const { PCScore } = this.state;
-    console.log(PCScore, move);
+    // console.log(PCScore, move);
     PCScore.update(move.color, move.points);
 
     this.setState( PCScore: PCScore);
   }
 
-  asignarFichas(numero) {
-    const { bolsa } = this.state;
+  static asignarFichas(bolsa, numero) {
+    // const { bolsa } = this.state;
     const fichas = [];
     for (let i = 0; i < numero; i++) {
       // Repartir fichas aleatoriamente quitándolas de la bolsa
@@ -72,16 +87,16 @@ class App extends Component {
   }
 
   render() {
-    const { playerScore, PCScore, bolsa, turnoJugador } = this.state;
-    const numeroFichas = 6;
-    const fichasJugador = this.asignarFichas(numeroFichas);
+    const { playerScore, PCScore, bolsa, turnoJugador, fichasJugador, fichasPC } = this.state;
+    
     return (
       <div className="app">
         <h2>Genial!</h2>
         <HexGrid width={1200} height={800} viewBox="-50 -50 100 100">
           <GameLayout onDrop={this.onDrop} 
                       turnoJugador={turnoJugador}
-                      pcMove={this.pcMove} />
+                      pcMove={this.pcMove}
+                      fichas={fichasPC} />
           <TileList className={'tiles'} 
                     fichas={fichasJugador} 
                     onDragStart={this.onDragStart} 
