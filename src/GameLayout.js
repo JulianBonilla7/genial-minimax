@@ -7,10 +7,12 @@ import Utils from './Utils';
 class GameLayout extends Component {
   constructor(props) {
     super(props);
+    // Dimensiones del tablero (radio del hexágono empezando en 0)
     const radius = 5;
+    // Generar tablero
     const hexagons = GridGenerator.hexagon(radius);
-    // Add custom prop to couple of hexagons to indicate them being blocked
 
+    // Bloquear esquinas del tablero y pintarlas 
     const printCoordinates = function (h) {
       let { q, r, s } = h;
       if (JSON.stringify([q, r, s])===JSON.stringify([-radius, 0, radius])){
@@ -40,22 +42,25 @@ class GameLayout extends Component {
     }
     hexagons.map(printCoordinates);
 
-    this.state = { 
+    this.state = {
       hexagons,
-      move: { color: null, points: null }
+      move: { color: null, points: null },
+      turno: true
     };
   }
 
   // onDrop you can read information of the hexagon that initiated the drag
+  // Función ejecutada cuando el usuario coloca una pieza de ficha
   onDrop(event, source, targetProps) {
     const { move, hexagons } = this.state;
-    let neighbours = [];
-    let first = false;
-    let moveResult = {};
+    let neighbours = []; // Casillas vecinas a la casilla objetivo
+    let first = false; // bandera para validar si es la primera pieza de la ficha
+    let moveResult = {}; // resultado del movimiento
     let hexas = hexagons.map(hex => {
       // When hexagon is dropped on this hexagon, copy it's image and text
       if (HexUtils.equals(source.state.hex, hex)) {
         // console.log(targetProps);
+        // Copiar color de la pieza colocada
         hex.color = targetProps.data.color;
         first = targetProps.data.first;
         let color = hex.color;
@@ -74,9 +79,13 @@ class GameLayout extends Component {
           }
         });
 
+        /* 
+        Guardar resultado del movimiento
+        Los puntos son la cantidad de las casillas evaluadas con el mismo color menos la propia casilla
+        */
         moveResult = {
           color: color,
-          points: coloredHexas.length - 1
+          points: coloredHexas.length - 1 
         }
         this.props.onDrop(event, source, moveResult);
       }
@@ -99,7 +108,11 @@ class GameLayout extends Component {
       });
     }
 
-    this.setState({ hexagons: hexas, move: moveResult });
+    // Actualizar estado del tablero
+    this.setState({ hexagons: hexas, move: moveResult, turno: false });
+
+    // Turno del PC
+
   }
 
   onDragStart(event, source) {
@@ -142,6 +155,65 @@ class GameLayout extends Component {
       return hex;
     });
     this.setState({ hexagons: hexas });
+  }
+
+  // Funcíón ejecutada al poner una ficha completa
+  componentDidUpdate() {
+    console.log('You made a move!');
+    if (turno) {
+      return;
+    }
+    const { move, hexagons, turno } = this.state;
+    if (!turno) {
+      const libres = hexagons.filter(hex => {
+        // Validar
+        if(!hex.color && !hex.blocked){
+          return true;
+        }
+      });
+      const casillaElegida = libres[Utils.random(libres.length)];
+
+      const blocked = hexagons.find(hex => {
+        return HexUtils.equals(casillaElegida, hex);
+      });
+      // const neighbours = hexagons.filter(h => 
+      //   HexUtils.distance(blocked, h) < 2 && !HexUtils.equals(blocked, h)
+      // );
+      const neighbours = Utils.array_intersect(
+        hexagons, 
+        hexagons.filter(h => 
+          HexUtils.distance(blocked, h) < 2 && 
+          !HexUtils.equals(blocked, h) && 
+          !h.color)
+      );
+      const secondBlocked = neighbours[Utils.random(neighbours.length)];
+      console.log(blocked);
+      console.log(secondBlocked);
+      const hexas = hexagons.map(hex => {
+        if(HexUtils.equals(blocked, hex)){
+          console.log('Te encontré!');
+          hex.color = 'red';
+        }
+        if(HexUtils.equals(secondBlocked, hex)){
+          console.log('Te encontré!');
+          hex.color = 'blue';
+        }
+
+        return hex;
+      });
+
+      // const hexas = hexagons.map(hex => {
+      //   // Validar
+      //   console.log(casillaElegida);
+      //   console.log(hex);
+      //   if(HexUtils.equals(hex, casillaElegida)){
+      //     hex.blocked = true;
+      //   }
+      // });
+      this.setState({ 
+        hexagons: hexas, 
+        turno: true });
+    }
   }
 
   render() {

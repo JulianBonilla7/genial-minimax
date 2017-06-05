@@ -1,44 +1,72 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import HexTile from './HexTile';
+import './TileList.css';
 
 class TileList extends Component {
   constructor(props){
     super(props);
 
+    const { fichas } = props;
+
     this.onDragStart = this.onDragStart.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
 
-    this.state = { isTileMoving: false };
+    this.state = { isTileMoving: false, fichas: fichas };
   }
 
   static propTypes = {
     fichas: PropTypes.array.isRequired,
   };
 
-  onDragStart(event, source) {
-    this.setState({ isTileMoving: true })
-    console.log('Moving');
+  onDragStart(event, source, tileMoving) {
+    const { fichas } = this.state;
+    // console.log(fichas)
+    // let misFichas = fichas;
+    const fichaMovida = source.props.data.ficha;
+    const misFichas = fichas.map(ficha => {
+      // console.log(ficha);
+      // console.log(`Ficha movida: ${fichaMovida} | Ficha actual: ${ficha.key}`);
+      if (tileMoving && (fichaMovida != ficha.key)) {
+        // console.info('Esta no es la ficha');
+        ficha.blocked = true;
+      }
+
+      return ficha;
+    });
+    this.setState({ 
+      isTileMoving: tileMoving, 
+      fichas: misFichas 
+    });
+    // console.log(misFichas);
   }
 
   onDragEnd(event, source, success) {
     if (!success) {
       return;
     }
-    this.setState({ isTileMoving: false })
-    console.log('finished');
+    const { isTileMoving, fichas } = this.state;
+    // console.log(isTileMoving);
+    const misFichas = fichas.map(ficha => {
+      if (!isTileMoving) { ficha.blocked = false; }
+      
+      return ficha;
+    });
+    this.setState({ fichas: misFichas });
   }
 
   render() {
-    const { fichas } = this.props;
+    const { fichas } = this.state;
+    const { className } = this.props;
     return (
-      <g>
+      <g className={className}>
         {
           fichas.map((ficha, i) => (
             <HexTile key={i} 
                      x={15} 
                      y={7*i} 
                      ficha={ficha}
+                     blocked={ficha.blocked}
                      onDragStart={this.onDragStart}
                      onDragEnd={this.onDragEnd}
             />

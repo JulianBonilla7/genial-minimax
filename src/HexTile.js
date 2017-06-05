@@ -1,60 +1,71 @@
 import React, { Component } from 'react';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { GridGenerator, Layout, Hexagon, HexUtils } from 'react-hexgrid';
 import Utils from './Utils';
 
 class HexTile extends Component{
-	constructor(props) {
-	  super(props);
-	  let { color1, color2 } = props.ficha;
-	  let ficha = [color1, color2];
+  constructor(props) {
+    super(props);
+    let { color1, color2, key } = props.ficha;
+    let ficha = [color1, color2];
 
-	  // Initialize hexagons with some color
-	  const hexagons = GridGenerator.orientedRectangle(2, 1).map((hexagon, index) => {
-	    return Object.assign({}, hexagon, {
-	      color: ficha[index]
-	    });
-	  });
+    // Initialize hexagons with some color
+    const hexagons = GridGenerator.orientedRectangle(2, 1).map((hexagon, index) => {
+      return Object.assign({}, hexagon, {
+        color: ficha[index],
+        ficha: key
+      });
+    });
 
-	  this.state = { hexagons };
-	}
+    this.state = { hexagons };
+  }
 
-	static propTypes = {
-	  x: PropTypes.number,
-	  y: PropTypes.number,
-	  ficha: PropTypes.object.isRequired,
-	};
+  static propTypes = {
+    x: PropTypes.number,
+    y: PropTypes.number,
+    ficha: PropTypes.object.isRequired,
+    blocked: PropTypes.bool
+  };
 
-	static defaultProps = {
-	  x: 0,
-	  y: 0,
-	  ficha: {}
-	}
+  static defaultProps = {
+    x: 0,
+    y: 0,
+    ficha: {},
+    blocked: false
+  }
 
-	onDragStart(event, source) {
+  onDragStart(event, source) {
     // Could do something on onDragStart as well, if you wish
-    this.props.onDragStart(event, source);
+    const { blocked } = this.props;
+    if (blocked) {
+      event.preventDefault();
+      return;
+    }
+    // if (blocked) {console.log('You shouldnt move this')};
+    let first = false;
     const { hexagons } = this.state;
     // Get the other hex
     const neighbours = HexUtils.neighbours(source.state.hex);
     const secondHex = hexagons.filter(h => {
-    	for(let n of neighbours){
-    		if(HexUtils.equals(n, h)){
-    			return true;
-    		}
-    	}
+      for(let n of neighbours){
+        if(HexUtils.equals(n, h)){
+          return true;
+        }
+      }
     })[0];
     const hexas = hexagons.map(hex => {
-    	if (HexUtils.equals(source.state.hex, hex) && secondHex.color){
-    		console.log('There is another tile');
-    		hex.first = true;
-    		source.setState({ hex: hex });
-    	}
-    	return hex;
+      if (HexUtils.equals(source.state.hex, hex) && secondHex.color){
+        // console.log('There is another tile');
+        first = hex.first = true;
+        source.setState({ hex: hex });
+      }
+      return hex;
     })
 
+    this.props.onDragStart(event, source, first);
     this.setState({ hexagons: hexas });
-		// console.log(source);
+    // console.log(source);
   }
 
   // onDragEnd you can do some logic, e.g. to clean up hexagon if drop was success
@@ -76,31 +87,32 @@ class HexTile extends Component{
     this.setState({ hexagons: hexas });
   }
 
-	render() {
-	  const { hexagons } = this.state;
-	  return (
-	    <Layout className="tile" size={{ x: 3, y: 3 }} flat={false} spacing={1.01} 
-	    				origin={{ x: this.props.x, y: this.props.y }}>
-	      {
-	        hexagons.map((hex, i) => (
-	          <Hexagon
-	            key={i}
-	            q={hex.q}
-	            r={hex.r}
-	            s={hex.s}
-	            className={hex.color}
-	            //fill={(hex.image) ? HexUtils.getID(hex) : null}
-	            data={hex}
-	            onDragStart={(e, h) => this.onDragStart(e, h)}
+  render() {
+    const { hexagons } = this.state;
+    const { blocked } = this.props;
+    return (
+      <Layout className="tile" size={{ x: 3, y: 3 }} flat={false} spacing={1.01} 
+              origin={{ x: this.props.x, y: this.props.y }}>
+        {
+          hexagons.map((hex, i) => (
+            <Hexagon
+              key={i}
+              q={hex.q}
+              r={hex.r}
+              s={hex.s}
+              className={classNames({'blocked': blocked}, hex.color)}
+              //fill={(hex.image) ? HexUtils.getID(hex) : null}
+              data={hex}
+              onDragStart={(e, h) => this.onDragStart(e, h)}
               onDragEnd={(e, h, s) => this.onDragEnd(e, h, s)}
-	          >
-	         {/* <Text>{hex.text}</Text>*/}
-	          </Hexagon>
-	        ))
-	      }
-	    </Layout>
-	  );
-	}
+            >
+           {/* <Text>{hex.text}</Text>*/}
+            </Hexagon>
+          ))
+        }
+      </Layout>
+    );
+  }
 }
 
 export default HexTile;

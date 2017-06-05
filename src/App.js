@@ -12,8 +12,9 @@ class App extends Component {
   constructor(props){
     super(props);
     const playerScore = new Score('player');
+    const PCScore = new Score('PC');
     const bolsa = BolsaFichas.crearFichas();
-    this.state = { playerScore, bolsa };
+    this.state = { playerScore, PCScore, bolsa };
 
     this.onDrop = this.onDrop.bind(this);
   }
@@ -45,7 +46,7 @@ class App extends Component {
   }
 
   render() {
-    const { playerScore, bolsa } = this.state;
+    const { playerScore, PCScore, bolsa } = this.state;
     const numeroFichas = 6;
     const fichasJugador = this.asignarFichas(numeroFichas);
     return (
@@ -53,9 +54,10 @@ class App extends Component {
         <h2>Genial!</h2>
         <HexGrid width={1200} height={800} viewBox="-50 -50 100 100">
           <GameLayout onDrop={this.onDrop} />
-          <TileList fichas={fichasJugador}/>
+          <TileList className={'tiles'} fichas={fichasJugador}/>
         </HexGrid>
-        <Scoreboard score={playerScore}/>
+        <Scoreboard score={playerScore} style={{"float": "left"}}/>
+        <Scoreboard score={PCScore} style={{"float": "right"}}/>
       </div>
     );
   }

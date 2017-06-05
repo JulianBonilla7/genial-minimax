@@ -10,6 +10,10 @@ class Utils{
   static found(array1, array2) {
     return array1.some(r=> array2.includes(r))
   }
+
+  static random(limit){
+    return Math.floor(Math.random()*limit);
+  }
 }
 
 export default Utils;

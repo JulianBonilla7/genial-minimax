@@ -40,3 +40,13 @@ svg .tiles path {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+
+svg .tiles g.blocked .hexagon{
+    fill: #465880;
+}
+svg .tiles g.blocked:hover {
+    fill: #53699a;
+}
+svg .tiles g.blocked polygon{
+    stroke: #333;
+}
