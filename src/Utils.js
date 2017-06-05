@@ -1,3 +1,5 @@
+import { HexUtils } from 'react-hexgrid';
+
 class Utils{
   static array_intersect(array1, array2) {
     return array1.filter(n => array2.indexOf(n) !== -1);
@@ -11,8 +13,65 @@ class Utils{
     return array1.some(r=> array2.includes(r))
   }
 
+  static myArrayMax(arr) {
+      return Math.max.apply(null, arr);
+  }
+
+  static myArrayMin(arr) {
+      return Math.min.apply(null, arr);
+  }
+
   static random(limit){
     return Math.floor(Math.random()*limit);
+  }
+
+  static enLinea(a, b){
+    return a.q === b.q || a.r === b.r || a.s === b.s;
+  }
+
+  static evaluarPuntaje(tablero, casilla) {
+    // Seleccionar las casillas que dan puntos
+    const posibles = tablero.filter(h => {
+      if(casilla.color == h.color && HexUtils.distance(casilla, h) == 1 )
+      {
+        if (Utils.enLinea(casilla, h)) {
+          return true;
+        } else {
+          Utils.evaluarPuntaje(tablero, h);
+        }
+      }
+    });
+
+    return posibles.length;
+  }
+
+  static mejorMovimiento1(tablero, color){
+    const colored = tablero.filter(hex => hex.color == color);
+
+    const mejores = colored.map(hex => {
+      return tablero.find(h => (HexUtils.distance(hex, h) == 1 && !h.color))
+    });
+
+    return mejores[Utils.random(mejores.length)];
+  }
+
+  static movimientoAleatorio(tablero){
+    // Seleccionar posibles movimientos
+    const libres = tablero.filter(hex => !hex.color);
+    // Generar movimiento de primera pieza aleatorio
+    const elegida = libres[Utils.random(libres.length)]
+    const pieza1 = tablero.find(hex => {
+      return HexUtils.equals(elegida, hex);
+    });
+    // Encontrar posibles casillas para segunda pieza de ficha
+    const siguientes = Utils.array_intersect(
+      tablero, 
+      // Casillas vecinas excluyendo las que ya tengan color
+      tablero.filter(h => HexUtils.distance(pieza1, h) == 1 && !h.color)
+    );
+    const pieza2 = siguientes[Utils.random(siguientes.length)];
+
+    return { pieza1, pieza2 };
   }
 }
 

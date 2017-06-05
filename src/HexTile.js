@@ -18,7 +18,11 @@ class HexTile extends Component{
       });
     });
 
-    this.state = { hexagons };
+    this.state = { 
+      hexagons, 
+      moving: false,
+      first: false
+    };
   }
 
   static propTypes = {
@@ -43,8 +47,8 @@ class HexTile extends Component{
       return;
     }
     // if (blocked) {console.log('You shouldnt move this')};
-    let first = false;
-    const { hexagons } = this.state;
+    const { hexagons, first } = this.state;
+    let isFirst = false;
     // Get the other hex
     const neighbours = HexUtils.neighbours(source.state.hex);
     const secondHex = hexagons.filter(h => {
@@ -57,24 +61,23 @@ class HexTile extends Component{
     const hexas = hexagons.map(hex => {
       if (HexUtils.equals(source.state.hex, hex) && secondHex.color){
         // console.log('There is another tile');
-        first = hex.first = true;
+        isFirst = hex.first = true;
         source.setState({ hex: hex });
       }
       return hex;
     })
-
-    this.props.onDragStart(event, source, first);
-    this.setState({ hexagons: hexas });
+    // console.log(`Primera pieza?: ${isFirst}`);
+    this.setState({ hexagons: hexas, moving: true, first: isFirst });
+    this.props.onDragStart(event, source, true, isFirst);
     // console.log(source);
   }
 
   // onDragEnd you can do some logic, e.g. to clean up hexagon if drop was success
   onDragEnd(event, source, success) {
-    this.props.onDragEnd(event, source, success);
     if (!success) {
       return;
     }
-    const { hexagons } = this.state;
+    const { hexagons, first } = this.state;
     // TODO Drop the whole hex from array, currently somethings wrong with the patterns
     // const hexas = hexagons.filter(hex => !HexUtils.equals(targetHex, hex));
     const hexas = hexagons.map(hex => {
@@ -84,7 +87,9 @@ class HexTile extends Component{
       }
       return hex;
     });
-    this.setState({ hexagons: hexas });
+    let moving = first;
+    this.setState({ hexagons: hexas, moving: moving });
+    this.props.onDragEnd(event, source, success, moving);
   }
 
   render() {

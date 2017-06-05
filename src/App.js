@@ -11,14 +11,38 @@ import './App.css';
 class App extends Component {
   constructor(props){
     super(props);
+
+    this.onDragStart = this.onDragStart.bind(this);
+    this.onDragEnd = this.onDragEnd.bind(this);
+    this.pcMove = this.pcMove.bind(this);
+
     const playerScore = new Score('player');
     const PCScore = new Score('PC');
     const bolsa = BolsaFichas.crearFichas();
-    this.state = { playerScore, PCScore, bolsa };
+    const turnoJugador = true;
+    this.state = { 
+      playerScore, 
+      PCScore, 
+      bolsa,
+      turnoJugador 
+    };
 
     this.onDrop = this.onDrop.bind(this);
   }
 
+  onDragStart(event, source, playerMoving) {
+    // console.log(`Jugador empezó movimiento. Moviendo? ${playerMoving}`);
+    this.setState({ turnoJugador: playerMoving })
+    // this.setState({ isTileMoving: true })
+  }
+
+  onDragEnd(event, source, moving) {
+    // console.log(`Jugador terminó movimiento. Moviendo? ${moving}`);
+    this.setState({ turnoJugador: moving });
+    // this.setState({ isTileMoving: false })
+  }
+
+  // Actualizar puntos cuando el usuario pone una pieza
   onDrop(event, source, move){
     const { playerScore } = this.state;
     playerScore.update(move.color, move.points);
@@ -26,10 +50,12 @@ class App extends Component {
     this.setState( playerScore: playerScore);
   }
 
-  updateScore(color, points) {
-    const { score } = this.state;
-    score[color] = points;
-    this.setState({ score: score });
+  pcMove(move){
+    const { PCScore } = this.state;
+    console.log(PCScore, move);
+    PCScore.update(move.color, move.points);
+
+    this.setState( PCScore: PCScore);
   }
 
   asignarFichas(numero) {
@@ -46,15 +72,21 @@ class App extends Component {
   }
 
   render() {
-    const { playerScore, PCScore, bolsa } = this.state;
+    const { playerScore, PCScore, bolsa, turnoJugador } = this.state;
     const numeroFichas = 6;
     const fichasJugador = this.asignarFichas(numeroFichas);
     return (
       <div className="app">
         <h2>Genial!</h2>
         <HexGrid width={1200} height={800} viewBox="-50 -50 100 100">
-          <GameLayout onDrop={this.onDrop} />
-          <TileList className={'tiles'} fichas={fichasJugador}/>
+          <GameLayout onDrop={this.onDrop} 
+                      turnoJugador={turnoJugador}
+                      pcMove={this.pcMove} />
+          <TileList className={'tiles'} 
+                    fichas={fichasJugador} 
+                    onDragStart={this.onDragStart} 
+                    onDragEnd={this.onDragEnd} 
+          />
         </HexGrid>
         <Scoreboard score={playerScore} style={{"float": "left"}}/>
         <Scoreboard score={PCScore} style={{"float": "right"}}/>

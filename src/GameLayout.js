@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { GridGenerator, Layout, Hexagon, Text, HexUtils } from 'react-hexgrid';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
 import './GameLayout.css';
 import Utils from './Utils';
+import constantes from './constantes';
 
 class GameLayout extends Component {
   constructor(props) {
@@ -49,10 +51,17 @@ class GameLayout extends Component {
     };
   }
 
+  static propTypes = {
+    turnoJugador: PropTypes.bool.isRequired,
+    pcMove: PropTypes.func.isRequired,
+  };
+
   // onDrop you can read information of the hexagon that initiated the drag
   // Función ejecutada cuando el usuario coloca una pieza de ficha
   onDrop(event, source, targetProps) {
     const { move, hexagons } = this.state;
+    const { turnoJugador } = this.props;
+
     let neighbours = []; // Casillas vecinas a la casilla objetivo
     let first = false; // bandera para validar si es la primera pieza de la ficha
     let moveResult = {}; // resultado del movimiento
@@ -74,6 +83,7 @@ class GameLayout extends Component {
               hex.s === h.s
           ){
             if (h.color === color) {
+              // console.log('Distance: ' + HexUtils.distance(hex, h));
               return true;
             }
           }
@@ -87,6 +97,9 @@ class GameLayout extends Component {
           color: color,
           points: coloredHexas.length - 1 
         }
+
+        // console.log(moveResult);
+        // console.log(Utils.evaluarPuntaje(hexagons, hex));
         this.props.onDrop(event, source, moveResult);
       }
       return hex;
@@ -109,7 +122,7 @@ class GameLayout extends Component {
     }
 
     // Actualizar estado del tablero
-    this.setState({ hexagons: hexas, move: moveResult, turno: false });
+    this.setState({ hexagons: hexas, move: moveResult, turno: turnoJugador });
 
     // Turno del PC
 
@@ -159,57 +172,61 @@ class GameLayout extends Component {
 
   // Funcíón ejecutada al poner una ficha completa
   componentDidUpdate() {
-    console.log('You made a move!');
+    // const { turnoJugador } = this.props;
+
+    // console.log('You made a move!');
+    const { move, hexagons, turno } = this.state;
     if (turno) {
       return;
     }
-    const { move, hexagons, turno } = this.state;
+    // Turno del PC
     if (!turno) {
-      const libres = hexagons.filter(hex => {
-        // Validar
-        if(!hex.color && !hex.blocked){
-          return true;
-        }
-      });
-      const casillaElegida = libres[Utils.random(libres.length)];
+      // console.log(Utils.mejorMovimiento1(hexagons, 'red'));
 
-      const blocked = hexagons.find(hex => {
-        return HexUtils.equals(casillaElegida, hex);
-      });
-      // const neighbours = hexagons.filter(h => 
-      //   HexUtils.distance(blocked, h) < 2 && !HexUtils.equals(blocked, h)
+      // Generar movimiento de primera pieza aleatorio
+      // const casillaElegida = libres[Utils.random(libres.length)];
+      // const casillaElegida = Utils.movimientoAleatorio(hexagons);
+      // // Generar movimiento de primera pieza en base a casillas de un color
+      // // const casillaElegida = Utils.mejorMovimiento1(hexagons, 'red');
+
+      // // Encontrar casilla elegida en el tablero
+      // const blocked = hexagons.find(hex => {
+      //   return HexUtils.equals(casillaElegida, hex);
+      // });
+
+      // // Encontrar posibles casillas para segunda pieza de ficha
+      // const neighbours = Utils.array_intersect(
+      //   hexagons, 
+      //   // Casillas vecinas excluyendo las que ya tengan color
+      //   hexagons.filter(h => HexUtils.distance(blocked, h) == 1 && !h.color)
       // );
-      const neighbours = Utils.array_intersect(
-        hexagons, 
-        hexagons.filter(h => 
-          HexUtils.distance(blocked, h) < 2 && 
-          !HexUtils.equals(blocked, h) && 
-          !h.color)
-      );
-      const secondBlocked = neighbours[Utils.random(neighbours.length)];
-      console.log(blocked);
-      console.log(secondBlocked);
+      // // Asignar segunda ficha aleatoria
+      // const secondBlocked = neighbours[Utils.random(neighbours.length)];
+      // console.log(blocked);
+      // console.log(secondBlocked);
+
+      const movimiento = Utils.movimientoAleatorio(hexagons);
+      const colors = constantes.COLORES;
+      console.log(movimiento);
+      // Poner fichas en el tablero
+      let PCMove = {}
       const hexas = hexagons.map(hex => {
-        if(HexUtils.equals(blocked, hex)){
-          console.log('Te encontré!');
-          hex.color = 'red';
-        }
-        if(HexUtils.equals(secondBlocked, hex)){
-          console.log('Te encontré!');
-          hex.color = 'blue';
+        for (let pieza in movimiento) {
+          if(HexUtils.equals(movimiento[pieza], hex)){
+            console.log(movimiento[pieza]);
+            hex.color = colors[Utils.random(colors.length)];
+            PCMove = {
+              color: hex.color,
+              points: Utils.evaluarPuntaje(hexagons, hex)
+            }
+            this.setState({ move: PCMove });
+            this.props.pcMove(PCMove);
+          }
         }
 
         return hex;
       });
 
-      // const hexas = hexagons.map(hex => {
-      //   // Validar
-      //   console.log(casillaElegida);
-      //   console.log(hex);
-      //   if(HexUtils.equals(hex, casillaElegida)){
-      //     hex.blocked = true;
-      //   }
-      // });
       this.setState({ 
         hexagons: hexas, 
         turno: true });

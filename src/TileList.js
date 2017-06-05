@@ -19,7 +19,7 @@ class TileList extends Component {
     fichas: PropTypes.array.isRequired,
   };
 
-  onDragStart(event, source, tileMoving) {
+  onDragStart(event, source, tileMoving, isFirst) {
     const { fichas } = this.state;
     // console.log(fichas)
     // let misFichas = fichas;
@@ -27,7 +27,7 @@ class TileList extends Component {
     const misFichas = fichas.map(ficha => {
       // console.log(ficha);
       // console.log(`Ficha movida: ${fichaMovida} | Ficha actual: ${ficha.key}`);
-      if (tileMoving && (fichaMovida != ficha.key)) {
+      if (isFirst && (fichaMovida != ficha.key)) {
         // console.info('Esta no es la ficha');
         ficha.blocked = true;
       }
@@ -35,9 +35,11 @@ class TileList extends Component {
       return ficha;
     });
     this.setState({ 
-      isTileMoving: tileMoving, 
+      isTileMoving: isFirst, 
       fichas: misFichas 
     });
+    this.props.onDragStart(event, source, isFirst);
+    
     // console.log(misFichas);
   }
 
@@ -52,7 +54,9 @@ class TileList extends Component {
       
       return ficha;
     });
-    this.setState({ fichas: misFichas });
+    this.setState({ fichas: misFichas, isTileMoving: false });
+    this.props.onDragEnd(event, source, isTileMoving);
+
   }
 
   render() {
