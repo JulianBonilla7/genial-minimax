@@ -12,6 +12,10 @@ class Score {
   update(color, puntaje){
     this[color] += puntaje;
   }
+
+  puntajeColor(color){
+    return this[color];
+  }
 }
 
 export default Score;

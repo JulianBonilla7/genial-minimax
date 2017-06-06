@@ -29,9 +29,30 @@ class Utils{
     return a.q === b.q || a.r === b.r || a.s === b.s;
   }
 
+  static puntajeMinimo(puntaje){
+    let min = -1,
+    for(let x in puntaje) {
+        if( puntaje[x] < min) min = puntaje[x];
+    }
+    return min;
+  }
+
+  static esFinal(tablero){
+    const hayEspacio = tablero.find(hex => (
+      if (!hex.color && 
+          tablero.find(h => (
+            HexUtils.distance(hex, h) == 1 && !h.color
+          ))
+      )
+    ));
+
+    return !hayEspacio;
+  }
+
   static evaluarPuntaje(tablero, casilla) {
     // Seleccionar las casillas que dan puntos
     const posibles = tablero.filter(h => {
+      // console.log(h);
       if(casilla.color == h.color && HexUtils.distance(casilla, h) == 1 )
       {
         if (Utils.enLinea(casilla, h)) {
@@ -41,6 +62,7 @@ class Utils{
         }
       }
     });
+    // console.log(posibles);
 
     return posibles.length;
   }

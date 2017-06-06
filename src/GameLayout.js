@@ -99,8 +99,8 @@ class GameLayout extends Component {
           points: coloredHexas.length - 1 
         }
 
-        // console.log(moveResult);
-        // console.log(Utils.evaluarPuntaje(hexagons, hex));
+        console.log(moveResult);
+        console.log(Utils.evaluarPuntaje(hexagons, hex));
         this.props.onDrop(event, source, moveResult);
       }
       return hex;
