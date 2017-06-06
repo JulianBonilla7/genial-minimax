@@ -6,6 +6,7 @@ import './GameLayout.css';
 import Utils from './Utils';
 import constantes from './constantes';
 
+// Componente que representa el tablero de juego
 class GameLayout extends Component {
   constructor(props) {
     super(props);
@@ -15,7 +16,7 @@ class GameLayout extends Component {
     const hexagons = GridGenerator.hexagon(radius);
 
     // Bloquear esquinas del tablero y pintarlas 
-    const printCoordinates = function (h) {
+    const pintarCasillas = function (h) {
       let { q, r, s } = h;
       if (JSON.stringify([q, r, s])===JSON.stringify([-radius, 0, radius])){
         h.blocked = true;
@@ -42,22 +43,22 @@ class GameLayout extends Component {
         h.color = 'red';
       }
     }
-    hexagons.map(printCoordinates);
+    // Ejecutar la función pintarCasillas en cada casilla del tablero, pintando solo las esquinas
+    hexagons.map(pintarCasillas);
 
     this.state = {
       hexagons,
-      move: { color: null, points: null },
-      turno: true
+      move: { color: null, points: null },    // Variable para almacenar el movimiento de un turno
+      turno: true                             // Si es verdadera, indica el turno del jugador
     };
   }
 
   static propTypes = {
-    turnoJugador: PropTypes.bool.isRequired,
-    pcMove: PropTypes.func.isRequired,
-    fichas: PropTypes.array
+    turnoJugador: PropTypes.bool.isRequired,  // Indica el turno del jugador
+    pcMove: PropTypes.func.isRequired,        // Función para ralizar el movimiento de IA y actualizar puntaje
+    fichas: PropTypes.array                   // Fichas de IA
   };
 
-  // onDrop you can read information of the hexagon that initiated the drag
   // Función ejecutada cuando el usuario coloca una pieza de ficha
   onDrop(event, source, targetProps) {
     const { move, hexagons } = this.state;
@@ -67,41 +68,34 @@ class GameLayout extends Component {
     let first = false; // bandera para validar si es la primera pieza de la ficha
     let moveResult = {}; // resultado del movimiento
     let hexas = hexagons.map(hex => {
-      // When hexagon is dropped on this hexagon, copy it's image and text
+      // Cuando se ponga una pieza de ficha sobre esta casilla, se copia su color y 
+      // se verifica si es la primera pieza de la ficha (targetProps contiene info de la pieza soltada)
       if (HexUtils.equals(source.state.hex, hex)) {
-        // console.log(targetProps);
-        // Copiar color de la pieza colocada
         hex.color = targetProps.data.color;
         first = targetProps.data.first;
         let color = hex.color;
+        // Calcular vecinos de la casilla
         neighbours = hexagons.filter(h => HexUtils.distance(hex, h) < 2);
-        /* 
-        Guardar resultado del movimiento
-        Los puntos son la cantidad de las casillas evaluadas con el mismo color menos la propia casilla
-        */
+        // Guardar resultado del movimiento
         moveResult = {
           color: color,
           points: Utils.evaluarPuntaje(hexagons, hex)
         }
-
-        // console.log(moveResult);
-        // console.log(Utils.evaluarPuntaje(hexagons, hex));
-        // console.log(`Puntaje con segunda función: ${Utils.evaluarPuntaje(hexagons, hex)}`);
+        // Enviar resultado del movimiento a App para que actualice los puntajes
         this.props.onDrop(event, source, moveResult);
       }
       return hex;
     });
-    // console.log(neighbours);
     
     if (first) {        
-      // Bloquear todas las casillas menos las siguientes a la primera ficha puesta
+      // Bloquear todas las casillas menos las siguientes a la primera pieza puesta
       const blocked = Utils.array_difference(hexas, neighbours);
       for(let b of blocked){
         b.blocked = true;
       }
     }
     else{               
-      // Desbloquear tablero luego de terminar el movimiento
+      // Desbloquear tablero luego de terminar el movimiento de la ficha completa
       hexas = hexagons.map(hex => {
         hex.blocked = false;
         return hex;
@@ -110,109 +104,63 @@ class GameLayout extends Component {
 
     // Actualizar estado del tablero
     this.setState({ hexagons: hexas, move: moveResult, turno: turnoJugador });
-
-    // Turno del PC
-
   }
 
-  onDragStart(event, source) {
-    // Deshabilitar arrastre si la casilla no tiene contenido
-    if (!source.props.data.text) {
-      event.preventDefault();
-    }
-  }
-
-  // Decide here if you want to allow drop to this node
+  // Evento ejecutado cuando la pieza arrastrada está sobre una casilla
   onDragOver(event, source) {
-    // Find blocked hexagons by their 'blocked' attribute
+    // Guardar casillas bloqueadas
     const blockedHexas = this.state.hexagons.filter(h => h.blocked);
-    // Find if this hexagon is listed in blocked ones
+    // Validar si la casilla está entre las bloqueadas
     const blocked = blockedHexas.find(blockedHex => {
       return HexUtils.equals(source.state.hex, blockedHex);
     });
-
-    const { text, color } = source.props.data;
-    // Allow drop, if not blocked and there's no content already
-    if (!blocked && !text && !color) {
-      // Call preventDefault if you want to allow drop
+    // Saber si hay color en la casilla
+    const { color } = source.props.data;
+    // Si la casilla no está bloqueada y no tiene color aún, permitir soltar la pieza aquí
+    if (!blocked && !color) {
       event.preventDefault();
     }
   }
 
-  // onDragEnd you can do some logic, e.g. to clean up hexagon if drop was success
-  onDragEnd(event, source, success) {
-    if (!success) {
-      return;
-    }
-    // TODO Drop the whole hex from array, currently somethings wrong with the patterns
-
-    const { hexagons } = this.state;
-    // When hexagon is successfully dropped, empty it's text and image
-    const hexas = hexagons.map(hex => {
-      if (HexUtils.equals(source.state.hex, hex)) {
-        hex.color = null;
-      }
-      return hex;
-    });
-    this.setState({ hexagons: hexas });
-  }
-
-  // Funcíón ejecutada al poner una ficha completa
+  // Funcíón ejecutada cuando el tablero cambie
   componentDidUpdate() {
-    // const { turnoJugador } = this.props;
-
-    // console.log('You made a move!');
-    const { move, hexagons, turno } = this.state;
+    // Traer estado
+    const { move, hexagons, turno } = this.state; 
+    // Traer fichas PC
     const { fichas } = this.props;
+    // Si es el turno del jugador, finalizar esta función
     if (turno) {
       return;
     }
     // Turno del PC
     if (!turno) {
-      // console.log(Utils.mejorMovimiento1(hexagons, 'red'));
-
-      // Generar movimiento de primera pieza aleatorio
-      // const casillaElegida = libres[Utils.random(libres.length)];
-      // const casillaElegida = Utils.movimientoAleatorio(hexagons);
-      // // Generar movimiento de primera pieza en base a casillas de un color
-
-      // // Encontrar casilla elegida en el tablero
-      // const blocked = hexagons.find(hex => {
-      //   return HexUtils.equals(casillaElegida, hex);
-      // });
-
-      // // Encontrar posibles casillas para segunda pieza de ficha
-      // const neighbours = Utils.array_intersect(
-      //   hexagons, 
-      //   // Casillas vecinas excluyendo las que ya tengan color
-      //   hexagons.filter(h => HexUtils.distance(blocked, h) == 1 && !h.color)
-      // );
-      // // Asignar segunda ficha aleatoria
-      // const secondBlocked = neighbours[Utils.random(neighbours.length)];
-      // console.log(blocked);
-      // console.log(secondBlocked);
-
+      // Movimiento basado en las casillas coloreadas del tablero (hexagons)
       const movimiento = Utils.mejorMovimiento1(hexagons, fichas);
+      // Movimiento aleatorio, descomentar siguiente linea para probarlo
       // const movimiento = Utils.movimientoAleatorio(hexagons, fichas);
-      // Poner fichas en el tablero
+
+      // Variable para guardar el resultado del movimiento del PC
       let PCMove = {}
+      // Poner piezas de la ficha en el tablero
       const hexas = hexagons.map(hex => {
         for (let pieza in movimiento) {
           if(HexUtils.equals(movimiento[pieza], hex)){
-            // console.log(movimiento[pieza]);
             hex.color = movimiento[pieza].color;
+            // Actualizar variable con el color y los puntos generados en el movimiento
             PCMove = {
               color: hex.color,
               points: Utils.evaluarPuntaje(hexagons, hex)
             }
+            // Actualizar movimiento en el tablero
             this.setState({ move: PCMove });
+            // Enviar a App los resultados del movimiento para que actualice el puntaje
             this.props.pcMove(PCMove);
           }
         }
-
         return hex;
       });
 
+      // Guardar estado del tablero y establecer turno del jugador
       this.setState({ 
         hexagons: hexas, 
         turno: true });
@@ -220,6 +168,7 @@ class GameLayout extends Component {
   }
 
   render() {
+    // Estado del tablero, es decir, todas las casillas con su información actual
     let { hexagons } = this.state;
     return (
       <Layout className="game" size={{ x: 3, y: 3 }} flat={false} spacing={1.01} origin={{ x: -30, y: 0 }}>
@@ -230,15 +179,12 @@ class GameLayout extends Component {
               q={hex.q}
               r={hex.r}
               s={hex.s}
-              //className={hex.blocked ? ( hex.color ? hex.color : 'blocked' ) : null}
               className={classNames({'blocked': hex.blocked}, hex.color)}
-              fill={(hex.image) ? HexUtils.getID(hex) : null}
               data={hex}
-              onDragStart={(e, h) => this.onDragStart(e, h)}
-              onDragEnd={(e, h, s) => this.onDragEnd(e, h, s)}
               onDrop={(e, h, t) => this.onDrop(e, h, t) }
               onDragOver={(e, h) => this.onDragOver(e, h) }
             >
+              {/* Imprimir coordenadas de la casilla en el tablero*/}
               <Text>{hex.text || HexUtils.getID(hex)}</Text>
             </Hexagon>
           ))

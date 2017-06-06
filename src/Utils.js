@@ -156,7 +156,6 @@ class Utils{
     const { puntos2, pieza2 } = Utils.objetoMayorValor(movimientos2, 'puntos2');
     // Sumar puntos totales en el movimiento de ambas casillas de la ficha
     totalPuntos = puntos1 + puntos2;
-    console.log('Total puntos: ' + totalPuntos);
 
     return { pieza1, pieza2 };
   }

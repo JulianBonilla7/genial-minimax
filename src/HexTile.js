@@ -4,13 +4,14 @@ import PropTypes from 'prop-types';
 import { GridGenerator, Layout, Hexagon, HexUtils } from 'react-hexgrid';
 import Utils from './Utils';
 
+// Componente que va a representar cada ficha
 class HexTile extends Component{
   constructor(props) {
     super(props);
     let { color1, color2, key } = props.ficha;
     let ficha = [color1, color2];
 
-    // Initialize hexagons with some color
+    // Inicializar casillas con los colores y el key de la ficha
     const hexagons = GridGenerator.orientedRectangle(2, 1).map((hexagon, index) => {
       return Object.assign({}, hexagon, {
         color: ficha[index],
@@ -25,6 +26,7 @@ class HexTile extends Component{
     };
   }
 
+  // Propiedades que se esperan recibir, con su tipo
   static propTypes = {
     x: PropTypes.number,
     y: PropTypes.number,
@@ -32,6 +34,7 @@ class HexTile extends Component{
     blocked: PropTypes.bool
   };
 
+  // Asignar propiedades por defecto
   static defaultProps = {
     x: 0,
     y: 0,
@@ -39,17 +42,20 @@ class HexTile extends Component{
     blocked: false
   }
 
+  // Evento que indica el inicio de arrastre de alguna pieza
   onDragStart(event, source) {
-    // Could do something on onDragStart as well, if you wish
+    // No permitir arrastre si la casilla está bloqueada
     const { blocked } = this.props;
     if (blocked) {
       event.preventDefault();
       return;
     }
-    // if (blocked) {console.log('You shouldnt move this')};
+    // Traer estado
     const { hexagons, first } = this.state;
+    // isFirst indica si es la primera pieza de la ficha que se está moviendo.
+    // se inicializa en falso
     let isFirst = false;
-    // Get the other hex
+    // Obtener la casilla que no se arrastra
     const neighbours = HexUtils.neighbours(source.state.hex);
     const secondHex = hexagons.filter(h => {
       for(let n of neighbours){
@@ -58,37 +64,42 @@ class HexTile extends Component{
         }
       }
     })[0];
+    // Verificar en ambas casillas qué casilla se movió, y asignarle la propiedad first 
+    // si la otra casilla tiene color
     const hexas = hexagons.map(hex => {
       if (HexUtils.equals(source.state.hex, hex) && secondHex.color){
-        // console.log('There is another tile');
         isFirst = hex.first = true;
         source.setState({ hex: hex });
       }
       return hex;
     })
-    // console.log(`Primera pieza?: ${isFirst}`);
     this.setState({ hexagons: hexas, moving: true, first: isFirst });
+    // Ejecutar el evento de TileList indicándole el valor de isFirst
     this.props.onDragStart(event, source, true, isFirst);
-    // console.log(source);
   }
 
-  // onDragEnd you can do some logic, e.g. to clean up hexagon if drop was success
+  // Evento que indica el fin del arrastre de una pieza
   onDragEnd(event, source, success) {
+    // No hacer nada si el arrastre no fue exitoso
     if (!success) {
       return;
     }
+    // Traer estado
     const { hexagons, first } = this.state;
-    // TODO Drop the whole hex from array, currently somethings wrong with the patterns
-    // const hexas = hexagons.filter(hex => !HexUtils.equals(targetHex, hex));
+    // Eliminar color de la casilla movida
     const hexas = hexagons.map(hex => {
       if (HexUtils.equals(source.state.hex, hex)) {
         hex.color = null;
-        // hex.text = null;
       }
       return hex;
     });
+    // Variable para saber si se está moviendo una ficha.
+    // En caso de terminar de mover la primera casilla es true
+    // Si se termina de mover la segunda, significa que ya se movió la ficha completa
     let moving = first;
+    // Actualizar estado
     this.setState({ hexagons: hexas, moving: moving });
+    // Ejecutar el evento de TileList indicándole el valor de moving
     this.props.onDragEnd(event, source, success, moving);
   }
 
@@ -106,12 +117,10 @@ class HexTile extends Component{
               r={hex.r}
               s={hex.s}
               className={classNames({'blocked': blocked}, hex.color)}
-              //fill={(hex.image) ? HexUtils.getID(hex) : null}
               data={hex}
               onDragStart={(e, h) => this.onDragStart(e, h)}
               onDragEnd={(e, h, s) => this.onDragEnd(e, h, s)}
             >
-           {/* <Text>{hex.text}</Text>*/}
             </Hexagon>
           ))
         }
