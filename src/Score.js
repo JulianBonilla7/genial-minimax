@@ -1,3 +1,6 @@
+/* Objeto puntaje (clase normal), con atributos para indicar el jugador 
+ *  y el puntaje de cada color 
+ */
 class Score {
   constructor(player) {
     this.player = player;
@@ -9,11 +12,12 @@ class Score {
     this.green = 0;
   }
 
+  // Funcion para actualizar puntaje, recibe un color y un nuevo puntaje
   update(color, puntaje){
     if (this[color] + puntaje <= 18) {
       this[color] += puntaje;
     }
-    else{
+    else{                                 // Si se pasa de 18, dejar el puntaje en 18
       this[color] = 18;
       console.log('GENIAL!');
     }

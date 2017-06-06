@@ -194,8 +194,6 @@ class GameLayout extends Component {
 
       const movimiento = Utils.mejorMovimiento1(hexagons, fichas);
       // const movimiento = Utils.movimientoAleatorio(hexagons, fichas);
-      console.log('Movimiento aleatorio');
-      console.log(movimiento);
       // Poner fichas en el tablero
       let PCMove = {}
       const hexas = hexagons.map(hex => {
