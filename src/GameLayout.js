@@ -81,12 +81,12 @@ class GameLayout extends Component {
         */
         moveResult = {
           color: color,
-          points: Utils.evaluarPuntaje2(hexagons, hex)
+          points: Utils.evaluarPuntaje(hexagons, hex)
         }
 
         // console.log(moveResult);
         // console.log(Utils.evaluarPuntaje(hexagons, hex));
-        // console.log(`Puntaje con segunda función: ${Utils.evaluarPuntaje2(hexagons, hex)}`);
+        // console.log(`Puntaje con segunda función: ${Utils.evaluarPuntaje(hexagons, hex)}`);
         this.props.onDrop(event, source, moveResult);
       }
       return hex;
@@ -203,7 +203,7 @@ class GameLayout extends Component {
             hex.color = movimiento[pieza].color;
             PCMove = {
               color: hex.color,
-              points: Utils.evaluarPuntaje2(hexagons, hex)
+              points: Utils.evaluarPuntaje(hexagons, hex)
             }
             this.setState({ move: PCMove });
             this.props.pcMove(PCMove);

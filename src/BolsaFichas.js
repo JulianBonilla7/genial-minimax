@@ -1,6 +1,8 @@
 import Ficha from './Ficha';
 import constantes from './constantes';
 
+// Clase que representa la bolsa de fichas
+// Tiene métodos estaticos para crear las fichas y repartirlas
 class BolsaFichas {
 
   static crearFichas() {
@@ -8,7 +10,7 @@ class BolsaFichas {
     let contador = 0;
   	const fichasMismoColor = 5,
   		    fichasDiferenteColor = 6;
-
+    // Crear fichas con ambas casillas del mismo color (5 por cada color)
   	for (let color of constantes.COLORES) {
   	  let n = fichasMismoColor;
   	  while (n > 0) {
@@ -17,7 +19,7 @@ class BolsaFichas {
   	  	n--;
   	  }
   	}
-
+    // Crear resto de fichas
   	for (let i = 0; i < constantes.COLORES.length; i++) {
   		for (let j = i+1; j < constantes.COLORES.length; j++) {
 	  		let n = fichasDiferenteColor;
@@ -32,6 +34,7 @@ class BolsaFichas {
     return bolsa;
   }
 
+  // Sacar una ficha aleatoria de la bolsa
   static agregarFicha(bolsa) {
     const random = Math.floor(Math.random()*bolsa.length);
     const ficha = bolsa[random];

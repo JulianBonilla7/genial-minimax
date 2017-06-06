@@ -1,3 +1,4 @@
+// Objeto ficha que consiste en dos colores y una key para identificarla en el juego
 class Ficha {
   constructor(color1, color2, key) {
     this.color1 = color1;
