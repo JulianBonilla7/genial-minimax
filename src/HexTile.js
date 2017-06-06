@@ -39,14 +39,6 @@ class HexTile extends Component{
     blocked: false
   }
 
-  componentWillReceiveProps(nextProps){
-    // console.log( `nextProps ficha:${nextProps.ficha.key}, props ficha:${this.props.ficha.key}`);
-    if (nextProps.ficha.key !== this.props.ficha.key){
-      console.log('Cambió');
-      console.log(nextProps.ficha);
-    }
-  }
-
   onDragStart(event, source) {
     // Could do something on onDragStart as well, if you wish
     const { blocked } = this.props;
