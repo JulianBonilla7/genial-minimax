@@ -6,8 +6,8 @@ const ColorScore = (props) => {
   
   return (
     <tr>
-      <td className={color}>{color}:</td>
-      <td>{score}</td>
+      <td className={color} style={{"width":"30px", "background": color}}></td>
+      <td style={{"padding":"0 10px"}}>{score}</td>
     </tr>
   )
 }

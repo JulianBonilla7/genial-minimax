@@ -1,0 +1,13 @@
+.puntajes{
+  background: rgba(13,13,13,0.3);
+  padding: 15px 15px;
+  border-radius: 5px;
+  box-shadow: 0 0 8px 0 #666;
+  margin: 20px 0;
+}
+.puntajes.jugador{
+  float: left;
+}
+.puntajes.pc{
+  float: right;
+}

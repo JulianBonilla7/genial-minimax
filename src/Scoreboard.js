@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ColorScore from './ColorScore';
+import './Scoreboard.css';
 
 class Scoreboard extends Component{
   constructor(props) {
@@ -21,7 +22,10 @@ class Scoreboard extends Component{
       }
     }
     return(
-      <table className="stats" style={style}>
+      <table className="puntajes" style={style}>
+        <thead>
+          <tr><td><span style={{"textTransform": "capitalize"}}>{score.player}</span></td></tr>
+        </thead>
         <tbody>
         {
           colores.map((c, i) => (
