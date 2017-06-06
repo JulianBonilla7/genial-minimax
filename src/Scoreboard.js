@@ -26,7 +26,7 @@ class Scoreboard extends Component{
     return(
       <table className="puntajes" style={style}>
         <thead>
-          /* Nombre jugador */
+          {/* Nombre jugador */}
           <tr><td><span style={{"textTransform": "capitalize"}}>{score.player}</span></td></tr>
         </thead>
         <tbody>
