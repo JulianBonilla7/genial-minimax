@@ -74,33 +74,19 @@ class GameLayout extends Component {
         hex.color = targetProps.data.color;
         first = targetProps.data.first;
         let color = hex.color;
-
-        // Calcular puntos buscando en las casillas vecinas y sobre los ejes
         neighbours = hexagons.filter(h => HexUtils.distance(hex, h) < 2);
-        const coloredHexas = hexagons.filter(h => {
-          if (HexUtils.distance(hex, h) < 2 || 
-              hex.q === h.q || 
-              hex.r === h.r || 
-              hex.s === h.s
-          ){
-            if (h.color === color) {
-              // console.log('Distance: ' + HexUtils.distance(hex, h));
-              return true;
-            }
-          }
-        });
-
         /* 
         Guardar resultado del movimiento
         Los puntos son la cantidad de las casillas evaluadas con el mismo color menos la propia casilla
         */
         moveResult = {
           color: color,
-          points: coloredHexas.length - 1 
+          points: Utils.evaluarPuntaje2(hexagons, hex)
         }
 
-        console.log(moveResult);
-        console.log(Utils.evaluarPuntaje(hexagons, hex));
+        // console.log(moveResult);
+        // console.log(Utils.evaluarPuntaje(hexagons, hex));
+        // console.log(`Puntaje con segunda función: ${Utils.evaluarPuntaje2(hexagons, hex)}`);
         this.props.onDrop(event, source, moveResult);
       }
       return hex;
@@ -189,7 +175,6 @@ class GameLayout extends Component {
       // const casillaElegida = libres[Utils.random(libres.length)];
       // const casillaElegida = Utils.movimientoAleatorio(hexagons);
       // // Generar movimiento de primera pieza en base a casillas de un color
-      // // const casillaElegida = Utils.mejorMovimiento1(hexagons, 'red');
 
       // // Encontrar casilla elegida en el tablero
       // const blocked = hexagons.find(hex => {
@@ -207,7 +192,9 @@ class GameLayout extends Component {
       // console.log(blocked);
       // console.log(secondBlocked);
 
-      const movimiento = Utils.movimientoAleatorio(hexagons, fichas);
+      const movimiento = Utils.mejorMovimiento1(hexagons, fichas);
+      // const movimiento = Utils.movimientoAleatorio(hexagons, fichas);
+      console.log('Movimiento aleatorio');
       console.log(movimiento);
       // Poner fichas en el tablero
       let PCMove = {}
@@ -218,7 +205,7 @@ class GameLayout extends Component {
             hex.color = movimiento[pieza].color;
             PCMove = {
               color: hex.color,
-              points: Utils.evaluarPuntaje(hexagons, hex)
+              points: Utils.evaluarPuntaje2(hexagons, hex)
             }
             this.setState({ move: PCMove });
             this.props.pcMove(PCMove);

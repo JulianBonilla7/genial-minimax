@@ -37,22 +37,28 @@ class App extends Component {
   }
 
   onDragStart(event, source, playerMoving) {
-    console.log(`Jugador empezó movimiento. Moviendo? ${playerMoving}`);
+    // console.log(`Jugador empezó movimiento. Moviendo? ${playerMoving}`);
     this.setState({ turnoJugador: playerMoving })
     // this.setState({ isTileMoving: true })
   }
 
   onDragEnd(event, source, moving) {
     const { bolsa, fichasJugador } = this.state;
-    console.log(`Jugador terminó movimiento. Moviendo? ${moving}`);
+    // console.log(`Jugador terminó movimiento. Moviendo? ${moving}`);
     this.setState({ turnoJugador: moving });
     if (!moving) {
       const fichaMovida = source.props.data.ficha;
-      console.log(fichaMovida);
       const fichaNueva = BolsaFichas.agregarFicha(bolsa);
-      console.log(fichaNueva);
-      fichasJugador.splice(fichasJugador.findIndex(f => f.key == source.props.data.ficha), 1);
-      fichasJugador.push(fichaNueva);
+      const fichas = fichasJugador.map(f => {
+        if(f.key == fichaMovida){
+          f = fichaNueva;
+        }
+        return f;
+      })
+      // fichasJugador.splice(fichasJugador.findIndex(f => f.key == source.props.data.ficha), 1);
+      // fichasJugador.push(fichaNueva);
+      this.setState({ fichasJugador: fichas })
+      // console.log(this.state.fichasJugador);
     }
     // this.setState({ isTileMoving: false })
   }
@@ -92,7 +98,7 @@ class App extends Component {
     return (
       <div className="app">
         <h2>Genial!</h2>
-        <HexGrid width={1200} height={800} viewBox="-50 -50 100 100">
+        <HexGrid width={1200} height={800} viewBox="-50 -30 50 100">
           <GameLayout onDrop={this.onDrop} 
                       turnoJugador={turnoJugador}
                       pcMove={this.pcMove}

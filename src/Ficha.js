@@ -6,9 +6,7 @@ class Ficha {
   }
 
   equals(ficha){
-    return this.color1 == ficha.color1 && 
-           this.color2 == ficha.color2 && 
-           this.key == ficha.key;
+    return this.key == ficha.key;
   }
 }
 

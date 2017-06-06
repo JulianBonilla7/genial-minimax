@@ -63,7 +63,7 @@ class TileList extends Component {
     const { fichas } = this.state;
     const { className } = this.props;
     return (
-      <g className={className}>
+      <g className={className} transform={`translate(10, -20)`}>
         {
           fichas.map((ficha, i) => (
             <HexTile key={i} 

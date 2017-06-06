@@ -10,11 +10,21 @@ class Score {
   }
 
   update(color, puntaje){
-    this[color] += puntaje;
+    if (this[color] + puntaje <= 18) {
+      this[color] += puntaje;
+    }
+    else{
+      this[color] = 18;
+      console.log('GENIAL!');
+    }
   }
 
   puntajeColor(color){
     return this[color];
+  }
+
+  getPlayer(){
+    return this.player;
   }
 }
 
