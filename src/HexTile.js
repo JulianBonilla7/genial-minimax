@@ -8,19 +8,21 @@ import Utils from './Utils';
 class HexTile extends Component{
   constructor(props) {
     super(props);
-    let { color1, color2, key } = props.ficha;
-    let ficha = [color1, color2];
+    const { ficha } = props;
+    let { color1, color2, key } = ficha;
+    let coloresFicha = [color1, color2];
 
     // Inicializar casillas con los colores y el key de la ficha
     const hexagons = GridGenerator.orientedRectangle(2, 1).map((hexagon, index) => {
       return Object.assign({}, hexagon, {
-        color: ficha[index],
+        color: coloresFicha[index],
         ficha: key
       });
     });
 
     this.state = { 
       hexagons, 
+      ficha,
       moving: false,
       first: false
     };
@@ -101,6 +103,26 @@ class HexTile extends Component{
     this.setState({ hexagons: hexas, moving: moving });
     // Ejecutar el evento de TileList indicándole el valor de moving
     this.props.onDragEnd(event, source, success, moving);
+  }
+
+  componentWillReceiveProps(nextProps){
+    const { hexagons } = this.state;
+    if (this.props.ficha.key != nextProps.ficha.key){
+      this.setState({ ficha: nextProps.ficha });
+
+      let { color1, color2, key } = nextProps.ficha;
+      let coloresFicha = [color1, color2];
+
+      // Inicializar casillas con los colores y el key de la ficha
+      const hexas = hexagons.map((hexagon, index) => {
+        return Object.assign({}, hexagon, {
+          color: coloresFicha[index],
+          ficha: key
+        });
+      });
+
+      this.setState({ hexagons: hexas });
+    }
   }
 
   render() {

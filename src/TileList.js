@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import HexTile from './HexTile';
+import Utils from './Utils';
 import './TileList.css';
 
 // Componente que va a almacenar la lista de fichas. 
@@ -70,6 +71,15 @@ class TileList extends Component {
      * si se está moviendo la primera pieza de una ficha
      */
     this.props.onDragEnd(event, source, isTileMoving);
+  }
+
+  componentWillReceiveProps(nextProps){
+    const newTiles = Utils.array_difference(nextProps.fichas, this.props.fichas);
+    
+    // There is a new tile
+    if (newTiles.length > 0){
+      this.setState({ fichas: nextProps.fichas });
+    }
   }
 
   render() {
