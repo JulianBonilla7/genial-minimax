@@ -20,6 +20,7 @@ class App extends Component {
     this.onDragEnd = this.onDragEnd.bind(this);
     this.pcMove = this.pcMove.bind(this);
     this.onDrop = this.onDrop.bind(this);
+    this.actualizarFichasPC = this.actualizarFichasPC.bind(this);
 
     // Objetos puntaje para cada jugador
     const playerScore = new Score('player');
@@ -86,6 +87,18 @@ class App extends Component {
     this.setState( PCScore: PCScore);
   }
 
+  actualizarFichasPC(ficha){
+    const { bolsa, fichasPC } = this.state;
+    const fichaNueva = BolsaFichas.agregarFicha(bolsa);
+    const fichas = fichasPC.map(f => {
+      if(f.key == ficha){
+        f = fichaNueva;
+      }
+      return f;
+    });
+    this.setState({ fichasPC: fichas })
+  }
+
   // Saca el número indicado fichas iniciales de la bolsa
   static asignarFichas(bolsa, numero) {
     const fichas = [];
@@ -112,6 +125,7 @@ class App extends Component {
           <GameLayout onDrop={this.onDrop} 
                       turnoJugador={turnoJugador}
                       pcMove={this.pcMove}
+                      actualizarFichas={this.actualizarFichasPC}
                       fichas={fichasPC} />
           {/* Lista de fichas */}
           <TileList className={'tiles'} 

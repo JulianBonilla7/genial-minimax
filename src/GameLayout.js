@@ -56,7 +56,8 @@ class GameLayout extends Component {
   static propTypes = {
     turnoJugador: PropTypes.bool.isRequired,  // Indica el turno del jugador
     pcMove: PropTypes.func.isRequired,        // Función para ralizar el movimiento de IA y actualizar puntaje
-    fichas: PropTypes.array                   // Fichas de IA
+    fichas: PropTypes.array,                   // Fichas de IA
+    actualizarFichas: PropTypes.func
   };
 
   // Función ejecutada cuando el usuario coloca una pieza de ficha
@@ -134,11 +135,18 @@ class GameLayout extends Component {
     }
     // Turno del PC
     if (!turno) {
-      // Movimiento basado en las casillas coloreadas del tablero (hexagons)
-      const movimiento = Utils.mejorMovimiento1(hexagons, fichas);
+      // console.log(fichas.toString());
       // Movimiento aleatorio, descomentar siguiente linea para probarlo
       // const movimiento = Utils.movimientoAleatorio(hexagons, fichas);
 
+      // Movimiento basado en las casillas coloreadas del tablero (hexagons)
+      // const movimiento = Utils.mejorMovimiento1(hexagons, fichas);
+
+      // Movimiento basado en las casillas coloreadas del tablero evaluando todas las fichas disponibles
+      const movimiento = Utils.mejorMovimiento2(hexagons, fichas);
+
+      const { ficha } = Object.assign({}, movimiento.pieza1, movimiento.pieza2);
+      
       // Variable para guardar el resultado del movimiento del PC
       let PCMove = {}
       // Poner piezas de la ficha en el tablero
@@ -159,6 +167,8 @@ class GameLayout extends Component {
         }
         return hex;
       });
+
+      this.props.actualizarFichas(ficha);
 
       // Guardar estado del tablero y establecer turno del jugador
       this.setState({ 

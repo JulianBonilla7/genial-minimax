@@ -9,6 +9,10 @@ class Ficha {
   equals(ficha){
     return this.key == ficha.key;
   }
+
+  toString(){
+    return `Key: ${this.key}`;
+  }
 }
 
 export default Ficha;

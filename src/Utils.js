@@ -92,6 +92,93 @@ class Utils{
   }
 
   // Algoritmo que genera un movimiento del PC basado en la cantidad de puntos que puede sumar
+  // entre todas las fichas
+  static mejorMovimiento2(tablero, fichas){
+    let puntos = -9999;
+    let bestMove = {};
+
+    for (let i=0; i < fichas.length; i++){
+      let move = Utils.mejorMovimientoFicha(tablero, fichas[i]);
+      if (puntos < move.totalPuntos){
+        puntos = move.totalPuntos;
+        const { pieza1, pieza2 } = move;
+        bestMove = { pieza1, pieza2 };
+        console.log(fichas[i].key);
+      } 
+    }
+
+    return bestMove;
+  }
+
+  // Algoritmo que genera un movimiento del PC basado en la cantidad de puntos que puede sumar
+  // con una sola ficha
+  static mejorMovimientoFicha(tablero, ficha){
+    let totalPuntos = 0;
+
+    // Seleccionar casillas del tablero con los colores de la ficha elegida
+    const colored = tablero.filter(hex => (
+      ficha.color1 == hex.color || ficha.color2 == hex.color
+    ));
+
+    // Guardar las casillas en las que es posible hacer un movimiento que sume puntos
+    const posibles = colored.map(hex => {
+      return tablero.find(h => (HexUtils.distance(hex, h) == 1 && !h.color))
+    });
+
+    // Guardar posibles movimientos para la primera casilla de la ficha elegida
+    // Cada movimiento guarda su su puntaje
+    const movimientos1 = posibles.map(hex => {
+      for (let color in ficha){
+        if (color != 'key'){
+          hex = Object.assign({}, hex, {
+            color: ficha[color],
+            ficha: ficha.key
+          });
+          return { 
+            puntos1: Utils.evaluarPuntaje(tablero, hex),
+            pieza1: hex,
+            color1: color
+          };
+        }
+      }
+    })
+    // Obtener movimiento con mayor puntaje 
+    const { puntos1, pieza1, color1 } = Utils.objetoMayorValor(movimientos1, 'puntos1');
+
+    // Encontrar posibles casillas para segunda pieza de ficha
+    const siguientes = Utils.array_intersect(
+      tablero, 
+      // Casillas vecinas excluyendo las que ya tengan color
+      tablero.filter(h => HexUtils.distance(pieza1, h) == 1 && !h.color)
+    );
+
+    // Guardar posibles movimientos para la segunda casilla de la ficha elegida
+    // Cada movimiento guarda su su puntaje
+    const movimientos2 = siguientes.map(hex => {
+      for (let color in ficha){
+        if (color != 'key' && color != color1){
+          hex = Object.assign({}, hex, {
+            color: ficha[color],
+            ficha: ficha.key
+          });
+          return { 
+            puntos2: Utils.evaluarPuntaje(tablero, hex),
+            pieza2: hex
+          };
+        }
+      }
+    })
+
+    // Obtener movimiento con mayor puntaje
+    const { puntos2, pieza2 } = Utils.objetoMayorValor(movimientos2, 'puntos2');
+    // Sumar puntos totales en el movimiento de ambas casillas de la ficha
+    totalPuntos = puntos1 + puntos2;
+
+    return { pieza1, pieza2, totalPuntos };
+  }
+
+  // Algoritmo que genera un movimiento del PC basado en la cantidad de puntos que puede sumar
+  // La ficha elegida se selecciona al azar
   static mejorMovimiento1(tablero, fichas){
     let totalPuntos = 0;
 
